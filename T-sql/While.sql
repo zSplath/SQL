@@ -1,0 +1,148 @@
+USE SUCOS_VENDAS
+
+-- While simples (basicamente um for)
+
+DECLARE @MIN INT, @MAX INT;
+
+SET @MIN = 1;
+SET @MAX = 10;
+
+WHILE @MIN <= @MAX
+BEGIN
+    PRINT @MIN;
+    SET @MIN += 1;
+END
+
+-- While com Break
+
+DECLARE @INICIAL INT, @FINAL INT, @COUNTER INT, @LIMITE INT;
+
+SET @INICIAL = 1;
+SET @FINAL = 10;
+SET @COUNTER = 0;
+SET @LIMITE = 5;
+
+WHILE @INICIAL <= @FINAL
+BEGIN
+	SET @COUNTER += 1;
+	IF @COUNTER > @LIMITE
+	BEGIN
+		PRINT 'Break (Limite atingido, passou de ' + CONVERT(VARCHAR(11), @LIMITE) + ' Linhas)'
+		BREAK
+	END
+    PRINT @INICIAL;
+    SET @INICIAL += 1;
+END
+
+-- Número de notas por dia
+
+DECLARE @INICIO DATE, @FIM DATE
+SET @INICIO = '2018-02-10'
+SET @FIM = '2018-02-20'
+WHILE @INICIO <= @FIM
+BEGIN
+	DECLARE @NUM INT
+    SELECT @NUM = COUNT(*) FROM [NOTAS FISCAIS] WHERE DATA = @INICIO
+    PRINT 'Dia ' + CONVERT(VARCHAR(10), @INICIO, 103) + ' teve ' + CONVERT(VARCHAR(10), @NUM) + ' notas.'
+    SET @INICIO = DATEADD(DAY, 1, @INICIO)
+END
+
+-- Sequencia de Fibonacci
+-- Limitada por um valor máximo
+-- Usando o mínimo de variáveis possíveis
+
+-- Escolha uma Posição para descobrir o seu valor
+
+DECLARE @POSICAO INT
+SET @POSICAO = 33 -- Posição desejada
+
+IF @POSICAO < 3
+	BEGIN
+		IF @POSICAO < 0
+			PRINT 'Posição inválida'
+		ELSE IF @POSICAO = 0
+			PRINT 'P(0) = 0'
+		ELSE IF @POSICAO = 1
+			PRINT 'P(1) = 1'
+		ELSE IF @POSICAO = 2
+			PRINT 'P(2) = 1'
+	END
+ELSE
+	BEGIN
+		DECLARE @NUM1 INT, @NUM2 INT, @CONTADOR INT, @MAIOR INT
+
+		SET @NUM1 = 1
+		SET @NUM2 = 1
+		SET @CONTADOR = 3
+		SET @MAIOR = 1836311903 -- Maior valor de Fibonacci que INT(32bits) suporta
+
+		WHILE @CONTADOR <= @POSICAO
+		BEGIN
+			IF @CONTADOR % 2 = 1
+			BEGIN
+				SET @NUM1 += @NUM2
+				IF (@NUM1 >= @MAIOR)
+				BEGIN
+					IF @NUM1 = @MAIOR
+						BREAK
+					ELSE
+					BEGIN
+						SET @CONTADOR -= 1
+						BREAK
+					END
+				END
+			END
+			ELSE
+			BEGIN
+				SET @NUM2 += @NUM1
+				IF (@NUM2 >= @MAIOR)
+				BEGIN
+					IF @NUM2 = @MAIOR
+						BREAK
+					ELSE
+					BEGIN
+						SET @CONTADOR -= 1
+						BREAK
+					END
+				END
+			END
+
+			SET @CONTADOR += 1
+		END
+
+		IF (@CONTADOR <= @POSICAO)
+		BEGIN
+			PRINT 'Limite de ' + CONVERT(VARCHAR(10), @MAIOR) + ' Atingido'
+			IF @CONTADOR % 2 = 1
+				PRINT 'Maior valor possível: P(' + CONVERT(VARCHAR(2), @CONTADOR) + ') = ' + CONVERT(VARCHAR(10), @NUM1)
+			ELSE
+				PRINT 'Maior valor possível: P(' + CONVERT(VARCHAR(2), @CONTADOR) + ') = ' + CONVERT(VARCHAR(10), @NUM2)
+		END
+		ELSE
+		BEGIN
+			IF @POSICAO % 2 = 1
+				PRINT 'P(' + CONVERT(VARCHAR(2), @POSICAO) + ') = ' + CONVERT(VARCHAR(10), @NUM1)
+			ELSE
+				PRINT 'P(' + CONVERT(VARCHAR(2), @POSICAO) + ') = ' + CONVERT(VARCHAR(10), @NUM2)
+		END
+	END
+
+-- Inserindo dados usando While
+
+CREATE TABLE [TABELA DE NUMEROS] ([NUMERO] INT, [STATUS] VARCHAR(20));
+
+DECLARE @NUMERO_INICIAL_SEQUENCIA INT;
+
+SET @NUMERO_INICIAL_SEQUENCIA = 1;
+SET NOCOUNT ON
+
+WHILE @NUMERO_INICIAL_SEQUENCIA <= 200
+BEGIN
+        IF ((SELECT COUNT(*) FROM [NOTAS FISCAIS] WHERE NUMERO = @NUMERO_INICIAL_SEQUENCIA) = 1)
+             INSERT INTO [TABELA DE NUMEROS] VALUES (@NUMERO_INICIAL_SEQUENCIA, 'NOTA FISCAL');
+        ELSE
+             INSERT INTO [TABELA DE NUMEROS] VALUES (@NUMERO_INICIAL_SEQUENCIA, 'NÃO REGISTRADO');
+        SET @NUMERO_INICIAL_SEQUENCIA += 1;
+END;
+
+SELECT * FROM [TABELA DE NUMEROS]

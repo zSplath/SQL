@@ -1,0 +1,4 @@
+Baixei esses Scritps para criar o banco de dados e popular as tabelas,
+Dessa forma pude treinar as consultas.
+
+Esses Scritps não foram feitos por mim.
